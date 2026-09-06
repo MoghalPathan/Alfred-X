@@ -247,5 +247,3 @@ Built with teammates Bhagat, Mansi, and Sayali.
 <p align="center">
   <strong>🦇 "I shall be your guide through the digital night, Master Wayne." 🦇</strong>
 </p>
-#   A l f r e d - X  
- 
