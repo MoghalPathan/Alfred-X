@@ -82,8 +82,8 @@ System tray with background running, global hotkey (`Ctrl+Shift+A`), wake word d
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/MoghalPathan/<your-repo-name>.git
-cd <your-repo-name>
+git clone https://github.com/MoghalPathan/Alfred-X.git
+cd Alfred-X
 ```
 
 ### 2. Create Virtual Environment
