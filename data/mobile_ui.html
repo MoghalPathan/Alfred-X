@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>AlfredX</title>
+<style>
+:root{
+  --gold:#c9a227;--gold-bright:#ffd700;--gold-dim:#8b6914;
+  --cyan:#00d4ff;--red:#ff3333;--green:#00ff88;
+  --panel:rgba(5,10,25,0.97);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;background:#000;color:#fff;
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  overflow:hidden;touch-action:manipulation}
+
+/* ── Layout ── */
+.app{display:flex;flex-direction:column;height:100dvh;max-width:620px;margin:0 auto;position:relative;z-index:1}
+
+/* scanlines */
+.scan{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px)}
+/* corner brackets */
+.cor{position:fixed;width:22px;height:22px;border-color:rgba(201,162,39,.45);border-style:solid;z-index:2;pointer-events:none}
+.cor.tl{top:6px;left:6px;border-width:2px 0 0 2px}
+.cor.tr{top:6px;right:6px;border-width:2px 2px 0 0}
+.cor.bl{bottom:6px;left:6px;border-width:0 0 2px 2px}
+.cor.br{bottom:6px;right:6px;border-width:0 2px 2px 0}
+
+/* ── Header ── */
+.hdr{background:var(--panel);border-bottom:1px solid rgba(201,162,39,.4);
+  padding:10px 16px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  position:relative;overflow:hidden}
+/* gold top glow line */
+.hdr::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,#c9a227,#00d4ff,#c9a227,transparent)}
+
+.hdr-left{display:flex;align-items:center;gap:10px}
+.bat{width:40px;height:40px;border:1.5px solid rgba(201,162,39,.6);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:17px;
+  animation:bat-pulse 3s ease-in-out infinite}
+@keyframes bat-pulse{0%,100%{box-shadow:0 0 8px rgba(201,162,39,.3)}50%{box-shadow:0 0 22px rgba(201,162,39,.7),0 0 44px rgba(0,212,255,.25)}}
+.hdr-title h1{font-size:17px;font-weight:700;color:var(--gold);letter-spacing:5px}
+.hdr-title p{font-size:8px;color:var(--cyan);letter-spacing:3px;font-family:Consolas,monospace}
+
+/* Connection pill */
+.pill{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:20px;
+  border:1.5px solid rgba(0,255,136,.5);background:rgba(0,255,136,.08);
+  font-size:9px;font-weight:700;font-family:Consolas,monospace;letter-spacing:1px;
+  color:var(--green);transition:all .3s}
+.pill.off{border-color:rgba(255,51,51,.5);background:rgba(255,51,51,.08);color:var(--red)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.5s ease-in-out infinite}
+.pill.off .dot{background:var(--red);animation:none}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ── Reconnect bar ── */
+.rc-bar{background:rgba(255,51,51,.08);border-bottom:1px solid rgba(255,51,51,.25);
+  padding:8px 16px;display:none;gap:8px;align-items:center;flex-shrink:0}
+.rc-bar.show{display:flex}
+.ip-inp{flex:1;background:rgba(0,0,0,.5);border:1px solid rgba(255,51,51,.4);
+  color:#fff;padding:6px 10px;border-radius:4px;font-size:13px;
+  font-family:Consolas,monospace;outline:none}
+.ip-inp::placeholder{color:rgba(255,255,255,.3)}
+.conn-btn{padding:6px 14px;background:rgba(201,162,39,.15);border:1px solid var(--gold);
+  color:var(--gold);border-radius:4px;font-size:11px;font-weight:700;
+  font-family:Consolas,monospace;cursor:pointer}
+
+/* ── Chat ── */
+.chat{flex:1;overflow-y:auto;overflow-x:hidden;padding:14px 12px;
+  display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch;
+  background:radial-gradient(ellipse at 20% 0%,rgba(201,162,39,.06) 0%,transparent 55%),
+             radial-gradient(ellipse at 80% 100%,rgba(0,212,255,.05) 0%,transparent 55%),#000}
+.chat::-webkit-scrollbar{width:3px}
+.chat::-webkit-scrollbar-thumb{background:rgba(201,162,39,.4);border-radius:2px}
+
+/* Messages */
+.msg{display:flex;gap:9px;align-items:flex-start;animation:fadeUp .25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.msg.wayne{flex-direction:row-reverse}
+
+.av{width:36px;height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)}
+.av.a{background:linear-gradient(135deg,rgba(201,162,39,.35),rgba(201,162,39,.1));color:var(--gold)}
+.av.w{background:linear-gradient(135deg,rgba(0,212,255,.35),rgba(0,212,255,.1));color:var(--cyan)}
+
+.bw{max-width:calc(100% - 50px);display:flex;flex-direction:column;gap:3px}
+.msg.wayne .bw{align-items:flex-end}
+.bh{font-size:8px;font-family:Consolas,monospace;letter-spacing:1px;display:flex;gap:5px;align-items:center}
+.msg.alfred .bh{color:var(--gold)}
+.msg.wayne .bh{color:var(--cyan);flex-direction:row-reverse}
+.bt{color:rgba(255,255,255,.38)}
+
+.bb{padding:10px 13px;border-radius:4px;font-size:14px;line-height:1.55;color:rgba(255,255,255,.9)}
+.msg.alfred .bb{background:rgba(201,162,39,.07);border:1px solid rgba(201,162,39,.28);border-left:3px solid var(--gold)}
+.msg.wayne .bb{background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.28);border-right:3px solid var(--cyan)}
+
+/* Typing dots */
+.typing{display:flex;gap:5px;padding:12px 15px;
+  background:rgba(201,162,39,.07);border:1px solid rgba(201,162,39,.28);
+  border-left:3px solid var(--gold);border-radius:4px;width:fit-content}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:td 1.2s ease-in-out infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,60%,100%{opacity:.2;transform:scale(.8)}30%{opacity:1;transform:scale(1.2)}}
+
+/* ── Visualizer ── */
+.vis{height:58px;background:rgba(0,0,0,.7);display:flex;align-items:center;
+  justify-content:center;gap:2.5px;border-top:1px solid rgba(201,162,39,.18);
+  border-bottom:1px solid rgba(201,162,39,.18);flex-shrink:0;padding:0 16px;position:relative}
+.vb{width:3px;border-radius:2px;background:var(--gold);height:4px;transition:height .08s ease}
+.vs{position:absolute;bottom:3px;font-size:8px;color:rgba(201,162,39,.65);
+  font-family:Consolas,monospace;letter-spacing:2px}
+
+/* ── Input area ── */
+.inp-area{background:var(--panel);border-top:1px solid rgba(201,162,39,.28);
+  padding:10px 14px;flex-shrink:0;
+  padding-bottom:max(10px,env(safe-area-inset-bottom))}
+.inp-row{display:flex;gap:8px;align-items:flex-end}
+
+/* Mic */
+.mic{width:54px;height:54px;border-radius:50%;border:2px solid var(--gold);
+  background:rgba(201,162,39,.08);color:var(--gold);font-size:21px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.mic.on{border-color:var(--green);color:var(--green);background:rgba(0,255,136,.12);
+  animation:mic-glow 1s ease-in-out infinite}
+@keyframes mic-glow{0%,100%{box-shadow:0 0 16px rgba(0,255,136,.4)}50%{box-shadow:0 0 36px rgba(0,255,136,.8)}}
+
+/* Textarea */
+.txta{flex:1;background:rgba(8,12,28,.92);border:1.5px solid rgba(201,162,39,.28);
+  color:#fff;padding:11px 13px;border-radius:4px;font-size:14px;font-family:inherit;
+  outline:none;resize:none;min-height:46px;max-height:110px;
+  -webkit-appearance:none;transition:border-color .2s}
+.txta:focus{border-color:rgba(201,162,39,.75)}
+.txta::placeholder{color:rgba(255,255,255,.28)}
+
+/* Send */
+.send{width:46px;height:46px;border-radius:4px;border:none;
+  background:var(--cyan);color:#000;font-size:17px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s}
+.send:active{opacity:.7}
+</style>
+</head>
+<body>
+<div class="scan"></div>
+<div class="cor tl"></div><div class="cor tr"></div>
+<div class="cor bl"></div><div class="cor br"></div>
+
+<div class="app">
+  <!-- Header -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="bat">🦇</div>
+      <div class="hdr-title">
+        <h1>ALFREDX</h1>
+        <p>WAYNECORE MOBILE v2.1</p>
+      </div>
+    </div>
+    <div class="pill off" id="pill">
+      <div class="dot"></div>
+      <span id="pillTxt">OFFLINE</span>
+    </div>
+  </div>
+
+  <!-- Reconnect bar -->
+  <div class="rc-bar show" id="rcBar">
+    <input class="ip-inp" id="ipInp" placeholder="PC IP e.g. 192.168.1.10" type="text"/>
+    <button class="conn-btn" onclick="manualConnect()">CONNECT</button>
+  </div>
+
+  <!-- Chat -->
+  <div class="chat" id="chat"></div>
+
+  <!-- Visualizer -->
+  <div class="vis" id="vis">
+    <span class="vs" id="visSt">● STANDBY</span>
+  </div>
+
+  <!-- Input -->
+  <div class="inp-area">
+    <div class="inp-row">
+      <button class="mic" id="micBtn" onclick="toggleMic()">🎙️</button>
+      <textarea class="txta" id="txt" placeholder="Enter command or speak to Alfred..." rows="1"></textarea>
+      <button class="send" onclick="sendText()">➤</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════
+const PORT = 8000;
+// Since this page IS served from Alfred's server, hostname = PC IP automatically
+let host = window.location.hostname || '127.0.0.1';
+let ws = null, listening = false, recog = null, typingEl = null;
+
+// ═══════════════════════════════════════════════════════
+// VISUALIZER
+// ═══════════════════════════════════════════════════════
+const N_BARS = 26;
+const visEl = document.getElementById('vis');
+const bars = [];
+for (let i = 0; i < N_BARS; i++) {
+  const b = document.createElement('div');
+  b.className = 'vb';
+  visEl.insertBefore(b, document.getElementById('visSt'));
+  bars.push(b);
+}
+let visT = null, visAngle = 0;
+
+function animVis(on) {
+  if (visT) { clearInterval(visT); visT = null; }
+  if (!on) { bars.forEach(b => b.style.height = '4px'); return; }
+  visT = setInterval(() => {
+    visAngle += 0.11;
+    bars.forEach((b, i) => {
+      const dist = Math.abs(i - N_BARS/2) / (N_BARS/2);
+      const maxH = 38 * (1 - dist * 0.4);
+      b.style.height = (4 + maxH * Math.abs(Math.sin(visAngle * 2.4 + i * 0.28))) + 'px';
+    });
+  }, 50);
+}
+
+// ═══════════════════════════════════════════════════════
+// WEBSOCKET
+// ═══════════════════════════════════════════════════════
+function connect(h) {
+  if (ws) { try { ws.close(); } catch(e){} }
+  if (h) host = h;
+  try { ws = new WebSocket(`ws://${host}:${PORT}/ws`); }
+  catch(e) { setOnline(false); return; }
+
+  ws.onopen  = () => { setOnline(true); };
+  ws.onclose = () => {
+    setOnline(false);
+    setTimeout(() => { if (!ws || ws.readyState > 1) connect(); }, 4000);
+  };
+  ws.onerror = () => {};
+  ws.onmessage = (ev) => {
+    try {
+      const d = JSON.parse(ev.data);
+      hideTyping();
+      if (d.type === 'reply' || d.type === 'connected') addMsg('alfred', d.text);
+    } catch(e) {}
+  };
+}
+
+function manualConnect() {
+  const ip = document.getElementById('ipInp').value.trim();
+  if (ip) connect(ip);
+}
+
+function setOnline(on) {
+  const p = document.getElementById('pill');
+  const t = document.getElementById('pillTxt');
+  const r = document.getElementById('rcBar');
+  if (on) {
+    p.classList.remove('off'); t.textContent = 'ONLINE'; r.classList.remove('show');
+  } else {
+    p.classList.add('off'); t.textContent = 'OFFLINE'; r.classList.add('show');
+  }
+}
+
+function send(text) {
+  if (!text.trim()) return;
+  addMsg('wayne', text);
+  showTyping();
+  if (ws && ws.readyState === 1) {
+    ws.send(JSON.stringify({ text }));
+  } else {
+    setTimeout(() => {
+      hideTyping();
+      addMsg('alfred', 'Not connected to AlfredX, Master. Please check the IP and try again.');
+    }, 700);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// CHAT
+// ═══════════════════════════════════════════════════════
+function esc(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+function now() { return new Date().toTimeString().slice(0,8); }
+
+function addMsg(role, text) {
+  const isA = role === 'alfred';
+  const div = document.createElement('div');
+  div.className = 'msg ' + (isA ? 'alfred' : 'wayne');
+  div.innerHTML = `
+    <div class="av ${isA?'a':'w'}">${isA?'A':'W'}</div>
+    <div class="bw">
+      <div class="bh"><span>${isA?'ALFRED':'MASTER WAYNE'}</span><span class="bt">${now()}</span></div>
+      <div class="bb">${esc(text)}</div>
+    </div>`;
+  document.getElementById('chat').appendChild(div);
+  scrollChat();
+}
+
+function showTyping() {
+  if (typingEl) return;
+  const chat = document.getElementById('chat');
+  const w = document.createElement('div');
+  w.className = 'msg alfred';
+  w.innerHTML = '<div class="av a">A</div><div class="typing"><span></span><span></span><span></span></div>';
+  chat.appendChild(w); typingEl = w; scrollChat();
+}
+function hideTyping() { if (typingEl) { typingEl.remove(); typingEl = null; } }
+function scrollChat() { const c = document.getElementById('chat'); c.scrollTop = c.scrollHeight; }
+
+// ═══════════════════════════════════════════════════════
+// TEXT INPUT
+// ═══════════════════════════════════════════════════════
+function sendText() {
+  const el = document.getElementById('txt');
+  const t = el.value.trim();
+  if (!t) return;
+  el.value = ''; el.style.height = 'auto';
+  send(t);
+}
+
+document.getElementById('txt').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendText(); }
+});
+document.getElementById('txt').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 110) + 'px';
+});
+
+// ═══════════════════════════════════════════════════════
+// VOICE — Web Speech API
+// Works on: Chrome (Android), Edge, Safari (iOS 14.5+)
+// ═══════════════════════════════════════════════════════
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+function toggleMic() {
+  if (!SR) {
+    addMsg('alfred', 'Voice recognition is not supported on this browser, Master. Please use Chrome on Android or Safari on iOS 14.5+.');
+    return;
+  }
+  listening ? stopMic() : startMic();
+}
+
+function startMic() {
+  recog = new SR();
+  recog.lang = 'en-GB';
+  recog.interimResults = false;
+  recog.maxAlternatives = 1;
+  recog.continuous = false;
+
+  recog.onstart = () => {
+    listening = true;
+    const btn = document.getElementById('micBtn');
+    btn.classList.add('on'); btn.textContent = '⏹';
+    document.getElementById('visSt').textContent = '● LISTENING';
+    animVis(true);
+  };
+
+  recog.onresult = e => {
+    const t = e.results[0][0].transcript;
+    document.getElementById('txt').value = t;
+    stopMic();
+    setTimeout(sendText, 300);
+  };
+
+  recog.onerror = e => {
+    stopMic();
+    if (e.error === 'network') addMsg('alfred', 'Speech service unavailable. Please type your command, Master.');
+    else if (e.error === 'not-allowed') addMsg('alfred', 'Microphone access denied. Please allow mic permissions in your browser settings.');
+  };
+
+  recog.onend = stopMic;
+
+  try { recog.start(); } catch(e) { stopMic(); }
+}
+
+function stopMic() {
+  listening = false;
+  if (recog) { try { recog.stop(); } catch(e){} recog = null; }
+  const btn = document.getElementById('micBtn');
+  btn.classList.remove('on'); btn.textContent = '🎙️';
+  document.getElementById('visSt').textContent = '● STANDBY';
+  animVis(false);
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  connect();
+  // If still not connected after 2s, show reconnect bar with a hint
+  setTimeout(() => {
+    if (!ws || ws.readyState !== 1) {
+      document.getElementById('rcBar').classList.add('show');
+    }
+  }, 2000);
+});
+
+// Keep-alive ping every 25s so mobile browsers don't kill the WS
+setInterval(() => {
+  if (ws && ws.readyState === 1) ws.send(JSON.stringify({ ping: true }));
+}, 25000);
+</script>
+</body>
+</html>

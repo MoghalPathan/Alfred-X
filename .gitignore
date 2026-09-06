@@ -1,0 +1,19 @@
+venv/
+__pycache__/
+*.pyc
+.env
+data/alfred_memory.db
+assets/gotham_bg.jpg
+dist/
+build/
+*.zip
+ma.py
+PyWhatKit_DB.txt
+test.html
+setup_wizard.py
+AlfredX.spec
+data/alfredx_history.db
+data/music/Tum Hi Ho.mp3
+data/music/Tum Nazar Mein Raho.mp3
+data/music/Zindagi Se Churake.mp3
+data/codex/Alfred_Codex.pdf
