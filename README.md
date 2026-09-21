@@ -246,6 +246,14 @@ Built with teammates Bhagat, Mansi, and Sayali.
 
 ---
 
+## SCREENSHOTS:
+<img width="960" height="540" alt="1" src="https://github.com/user-attachments/assets/43fb8ee2-f797-4e92-8c47-b32b138a1e04" />
+<img width="960" height="540" alt="2" src="https://github.com/user-attachments/assets/dae8f7d6-8b83-4aa7-b9aa-58dc75d9f187" />
+<img width="960" height="540" alt="3" src="https://github.com/user-attachments/assets/cec9e760-6174-41b0-98ca-fde43c7031bb" />
+<img width="960" height="540" alt="4" src="https://github.com/user-attachments/assets/c1ed11eb-2134-4f72-82ef-b8bf294f440e" />
+<img width="960" height="540" alt="5" src="https://github.com/user-attachments/assets/5e0e101a-e85b-4f9c-851c-2a8ea5a2fdc7" />
+<img width="960" height="540" alt="6" src="https://github.com/user-attachments/assets/489b6f6c-55fb-487b-95af-85acc4b2ad98" />
+
 <p align="center">
   <strong>🦇 "I shall be your guide through the digital night, Master Wayne." 🦇</strong>
 </p>
