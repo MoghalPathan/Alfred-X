@@ -1,5 +1,7 @@
 # 🦇 AlfredX: The Waynecore Assistant
 
+![Python application](https://github.com/MoghalPathan/Alfred-X/actions/workflows/python-app.yml/badge.svg)
+
 > *"I shall be your guide through the digital night, Master Wayne."*
 
 A sophisticated AI desktop assistant inspired by **Alfred Pennyworth** (DC Comics) and **JARVIS** (Marvel). Built with Python + PyQt5, featuring a JARVIS-style HUD interface, voice conversation, and bilingual support.
