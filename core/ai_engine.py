@@ -494,8 +494,6 @@ class AIEngine:
     def clear_history(self):
         self.conversation_history.clear()
 
-        print(f"[AIEngine] [X] Ollama failed: {e}")
-        return None
 
     def _load_knowledge_base(self):
         self.knowledge_base = {}
